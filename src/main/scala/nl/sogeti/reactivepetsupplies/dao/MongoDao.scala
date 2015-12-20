@@ -1,4 +1,4 @@
-package com.danielasfregola.quiz.management.dao
+package nl.sogeti.reactivepetsupplies.dao
 
 import com.typesafe.config.ConfigFactory
 import reactivemongo.api.MongoDriver

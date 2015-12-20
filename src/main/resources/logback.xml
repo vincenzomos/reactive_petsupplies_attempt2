@@ -9,11 +9,12 @@
     </appender>
 
     <logger name="akka" level="INFO" />
+    <logger name="reactivemongo.api" level="DEBUG" />
     <logger name="spray" level="INFO" />
 
-    <logger name="com.danielasfregola" level="INFO" />
+    <logger name="nl.sogeti" level="DEBUG" />
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
