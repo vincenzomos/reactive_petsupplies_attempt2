@@ -30,8 +30,9 @@ trait RestApi extends HttpService with ActorLogging { actor: Actor =>
       customerId =>
         get { requestContext =>
           val responder = createResponder(requestContext)
-          customerManager.getCustomer(Option(customerId)).pipeTo(responder)
-
+          customerId match {
+            case id => customerManager.getCustomer(Option(id)).pipeTo(responder)
+          }
         }
     }~
         post {
@@ -40,6 +41,12 @@ trait RestApi extends HttpService with ActorLogging { actor: Actor =>
             customerManager.createCustomer(customer).pipeTo(responder)
           }
         } ~
+      path("customers") {
+        get { requestContext =>
+          val responder = createResponder(requestContext)
+          customerManager.findAllCustomers
+          }
+        }~
       path(Segment) { id =>
         delete { requestContext =>
           val responder = createResponder(requestContext)

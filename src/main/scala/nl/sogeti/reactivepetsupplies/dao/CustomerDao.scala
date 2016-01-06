@@ -5,7 +5,7 @@ import nl.sogeti.reactivepetsupplies.model.api.CustomerProtocol
 import nl.sogeti.reactivepetsupplies.model.persistence.CustomerEntity
 import org.slf4j.LoggerFactory
 import reactivemongo.api.QueryOpts
-import reactivemongo.api.collections.default.BSONCollection
+import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import reactivemongo.core.commands.Count
 
@@ -24,8 +24,12 @@ trait CustomerDao extends MongoDao {
 
   val collection = db[BSONCollection](CUSTOMER_COLLECTION)
 
-  def save(customerEntity: CustomerEntity) = collection.save(customerEntity)
-    .map(_ => CustomerCreated(customerEntity.id.stringify))
+  def save(customerEntity: CustomerEntity) = {
+    val selector = BSONDocument("_id:" -> customerEntity.id)
+    collection.update(selector, customerEntity, upsert = true)
+  }
+
+  def findAll = collection.find(emptyQuery).cursor[CustomerEntity].collect[List]()
 
   def findById(id: String) = {
   logger.info("Reached the findByID with {}", id)

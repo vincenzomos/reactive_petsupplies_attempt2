@@ -1,4 +1,4 @@
-# Quiz Management Service
+#Customer Manager service
 Tutorial on how to build a REST api with Spray, Akka and ReactiveMongo
 
 Article: <a href="http://danielasfregola.com/2015/03/16/how-to-integrate-reactivemongo-in-your-akka-spray-application/" target="_blank">How to Integrate ReactiveMongo in your Akka Spray Application</a>
@@ -33,6 +33,14 @@ case class Question(id: String, question: String)
 Answer entity:
 ```
 case class Answer(answer: String)
+```
+
+### Run the Mongo Database
+
+Run MongoDB on windows
+
+```
+D:\Mongodb\bin\mongod.exe --dbpath d:\mongodb\data
 ```
 
 ### Create a quiz

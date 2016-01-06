@@ -8,6 +8,8 @@ object CustomerProtocol {
 
   case class Customer(role: String, firstname : String, surname: String, streetAddress:String, city : String, postalCode: String)
 
+  case class Customers(orders: List[Customer])
+
   /* messages */
 
   case class CustomerCreated(id: String)
@@ -20,6 +22,10 @@ object CustomerProtocol {
 
   object Customer extends DefaultJsonProtocol {
     implicit val format = jsonFormat6(Customer.apply)
+  }
+
+  object Customers extends DefaultJsonProtocol {
+    implicit val format = jsonFormat1(Customers.apply)
   }
 
   /* implicit conversions */

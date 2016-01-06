@@ -1,43 +1,51 @@
 package nl.sogeti.reactivepetsupplies.dao
 
+import nl.sogeti.reactivepetsupplies.model.api.CustomerProtocol
+import nl.sogeti.reactivepetsupplies.model.api.CustomerProtocol.Customer
+import nl.sogeti.reactivepetsupplies.model.persistence.CustomerEntity
+import org.scalatest.concurrent.ScalaFutures
+import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.FunSuite
+import org.scalatest.BeforeAndAfter
+import org.scalatest.mock.MockitoSugar
+import org.mockito.Mockito._
+
+import spray.json._
+
+import scala.concurrent.{Await, Future}
 
 /**
   * Created by mosvince on 20-12-2015.
   */
-class CustomerDaoTests extends FunSuite with BeforeAndAfter with MockitoSugar {
-  import org.scalatest.FunSuite
-  import org.scalatest.BeforeAndAfter
-  import org.scalatest.mock.MockitoSugar
-  import org.mockito.Mockito._
+class CustomerDaoTests extends FunSuite with BeforeAndAfter with MockitoSugar with ScalaFutures {
 
-    test ("test customer Dao") {
 
-      // (1) init
-      val service = mock[CustomerDao]
-      val dummyCustomrer = """{
+  var service: CustomerDao = mock[CustomerDao]
+  var dummyCustomer = """{
         "city": "Antwerpen",
         "role": "customer",
         "streetAddress": "Grote Markt 10",
-        "firstname": "Admin",
-        "surname": "Administrator",
-        "postalCode": "12344"""
-      }
+        "firstname": "Kees",
+        "surname": "Kooten",
+        "postalCode": "12344"}""".parseJson.convertTo[Customer]
 
-      // (2) setup: when someone logs in as "johndoe", the service should work;
-      //            when they try to log in as "joehacker", it should fail.
-      when(service.findById("johndoe", "secret")).thenReturn(Some(User("johndoe")))
-      when(service.login("joehacker", "secret")).thenReturn(None)
 
-      // (3) access the service
-      val johndoe = service.login("johndoe", "secret")
-      val joehacker = service.login("joehacker", "secret")
+  test("test findById") {
+    when(service.findById("123456")).thenReturn(Future {
+      Option(CustomerEntity.toCustomerEntity(dummyCustomer))
+    })
+    //      when(service.login("joehacker", "secret")).thenReturn(None)
 
+
+    // (3) access the service
+    val keesKootenFuture = service.findById("123456")
+
+    whenReady(keesKootenFuture) { result =>
       // (4) verify the results
-      assert(johndoe.get == User("johndoe"))
-      assert(joehacker == None)
-
+      println("result is " + result)
+      assert(CustomerProtocol.toCustomer(result.get).equals(dummyCustomer))
     }
 
   }

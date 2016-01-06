@@ -13,13 +13,18 @@ class CustomerManager extends CustomerDao {
 
   def deleteCustomerEntity(id: String) = deleteById(id)
 
-  def getCustomer(maybeId: Option[String] = None) = {
+  def findAllCustomers = findAll map extractCustomers
 
-    def extractCustomer(maybeCustomer: Option[CustomerEntity]) = maybeCustomer match {
-      case Some(customerEntity) => toCustomer(customerEntity)
-      case _ => CustomerNotFound
-    }
-    tryGetCustomer(maybeId).map(extractCustomer)
+  def getCustomer(maybeId: Option[String] = None) = tryGetCustomer(maybeId).map(extractCustomer)
+
+ private  def extractCustomer(maybeCustomer: Option[CustomerEntity]) = maybeCustomer match {
+    case Some(customerEntity) => toCustomer(customerEntity)
+    case _ => CustomerNotFound
+  }
+
+  private def extractCustomers(customers: List[CustomerEntity]) = customers match {
+    case Nil => CustomerNotFound
+    case l:List[CustomerEntity] => Customers(l.map {o => toCustomer(o)})
   }
 
   private def tryGetCustomer(maybeId: Option[String]): Future[Option[CustomerEntity]] = maybeId match {

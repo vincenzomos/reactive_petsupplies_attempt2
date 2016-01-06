@@ -8,6 +8,14 @@ organization := "nl.sogeti.reactivepetsupplies"
 
 scalaVersion := "2.11.7"
 
+javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
+
+initialize := {
+  val _ = initialize.value
+  if (sys.props("java.specification.version") != "1.8")
+    sys.error("Java 8 is required for this project.")
+}
+
 resolvers ++= Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
                   "Spray Repository"    at "http://repo.spray.io")
 
@@ -22,7 +30,8 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion,
     "ch.qos.logback"    %  "logback-classic" % "1.1.2",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
-    "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
+//    "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
+    "org.reactivemongo" %% "reactivemongo" % "0.11.9",
     "org.mindrot" % "jbcrypt" % "0.3m",
     // Test dependencies
     "com.typesafe.akka" %% "akka-testkit"    % akkaVersion  % "test",

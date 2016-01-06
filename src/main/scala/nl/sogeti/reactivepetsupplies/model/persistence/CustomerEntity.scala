@@ -34,7 +34,9 @@ object CustomerEntity {
     def write(customerEntity: CustomerEntity): BSONDocument = Macros.handler[CustomerEntity].write(customerEntity)
   }
 
-//  implicit object CustomerEntityBSONReader extends BSONDocumentReader[CustomerEntity] {
+  /*  The macros make the following old fashioned translators redundant. However it will off cause provide more control ove reach field */
+
+  //  implicit object CustomerEntityBSONReader extends BSONDocumentReader[CustomerEntity] {
 
 //    def read(doc: BSONDocument): CustomerEntity =
 //      CustomerEntity(
