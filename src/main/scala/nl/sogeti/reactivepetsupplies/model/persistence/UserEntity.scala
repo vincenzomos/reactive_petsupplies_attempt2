@@ -1,37 +1,36 @@
 package nl.sogeti.reactivepetsupplies.model.persistence
 
-import nl.sogeti.reactivepetsupplies.model.api.CustomerProtocol.{Customer}
-import org.mindrot.jbcrypt.BCrypt
+import nl.sogeti.reactivepetsupplies.model.api.UserProtocol.User
 import reactivemongo.bson.Macros.Annotations.Key
 import reactivemongo.bson._
 
 /**
   * Created by mosvince on 6-12-2015.
   */
-case class CustomerEntity(@Key(key = "_id") id: BSONObjectID = BSONObjectID.generate,
-                          role: String,
-                          firstname : String,
-                          surname: String,
-                          streetAddress: String,
-                          city: String,
-                          postalCode: String)
+case class UserEntity(@Key(key = "_id") id: BSONObjectID = BSONObjectID.generate,
+                      role: String,
+                      firstname : String,
+                      surname: String,
+                      streetAddress: String,
+                      city: String,
+                      postalCode: String)
 
 
-object CustomerEntity {
+object UserEntity {
 
-  implicit def toCustomerEntity(customer: Customer) = CustomerEntity(role = customer.role, firstname = customer.firstname, surname = customer.surname, streetAddress =customer.streetAddress, city = customer.city, postalCode = customer.postalCode)
+  implicit def toUserEntity(customer: User) = UserEntity(role = customer.role, firstname = customer.firstname, surname = customer.surname, streetAddress =customer.streetAddress, city = customer.city, postalCode = customer.postalCode)
 
 //  implicit val customerHandler : BSONHandler[BSONDocument, CustomerEntity] = Macros.handler[CustomerEntity]
 //  implicit val customerAddressHandler : BSONHandler[BSONDocument, CustomerAddress] = Macros.handler[CustomerAddress]
 
-  implicit object CustomerEntityBSONReader extends BSONDocumentReader[CustomerEntity]   {
+  implicit object CustomerEntityBSONReader extends BSONDocumentReader[UserEntity]   {
 
-    def read(doc: BSONDocument): CustomerEntity = Macros.handler[CustomerEntity].read(doc)
+    def read(doc: BSONDocument): UserEntity = Macros.handler[UserEntity].read(doc)
 
 
   }
-  implicit object CustomerEntityBSONWriter extends BSONDocumentWriter[CustomerEntity] {
-    def write(customerEntity: CustomerEntity): BSONDocument = Macros.handler[CustomerEntity].write(customerEntity)
+  implicit object CustomerEntityBSONWriter extends BSONDocumentWriter[UserEntity] {
+    def write(customerEntity: UserEntity): BSONDocument = Macros.handler[UserEntity].write(customerEntity)
   }
 
   /*  The macros make the following old fashioned translators redundant. However it will off cause provide more control ove reach field */

@@ -19,38 +19,38 @@ class RestInterface extends HttpServiceActor
 
 trait RestApi extends HttpService with ActorLogging { actor: Actor =>
   
-  import model.api.CustomerProtocol._
+  import model.api.UserProtocol._
 
   implicit val timeout = Timeout(10 seconds)
   
-  val customerManager = new CustomerManager
+  val userManager = new UserManager
 
   def routes: Route =
-    path("customer" / Segment) {
-      customerId =>
+    path("user" / Segment) {
+      userId =>
         get { requestContext =>
           val responder = createResponder(requestContext)
-          customerId match {
-            case id => customerManager.getCustomer(Option(id)).pipeTo(responder)
+          userId match {
+            case id => userManager.getCustomer(Option(id)).pipeTo(responder)
           }
         }
     }~
         post {
-          entity(as[Customer]) { customer => requestContext =>
+          entity(as[User]) { user => requestContext =>
             val responder = createResponder(requestContext)
-            customerManager.createCustomer(customer).pipeTo(responder)
+            userManager.createUser(user).pipeTo(responder)
           }
         } ~
-      path("customers") {
+      path("users") {
         get { requestContext =>
           val responder = createResponder(requestContext)
-          customerManager.findAllCustomers
+          userManager.findAllCustomers
           }
         }~
       path(Segment) { id =>
         delete { requestContext =>
           val responder = createResponder(requestContext)
-          customerManager.deleteCustomerEntity(id).pipeTo(responder)
+          userManager.deleteUserEntity(id).pipeTo(responder)
         }
       }
 
@@ -80,23 +80,23 @@ trait RestApi extends HttpService with ActorLogging { actor: Actor =>
 }
 
 class Responder(requestContext:RequestContext) extends Actor with ActorLogging {
-  import model.api.CustomerProtocol._
+  import model.api.UserProtocol._
 
   def receive = {
 
-    case CustomerCreated(id) =>
+    case UserCreated(id) =>
       requestContext.complete(StatusCodes.Created, id)
       killYourself
 
-    case CustomerDeleted =>
+    case UserDeleted =>
       requestContext.complete(StatusCodes.OK)
       killYourself
 
-    case customer: Customer =>
+    case customer: User =>
       requestContext.complete(StatusCodes.OK, customer)
       killYourself
 
-    case CustomerNotFound =>
+    case UserNotFound =>
       requestContext.complete(StatusCodes.NotFound)
       killYourself
 
