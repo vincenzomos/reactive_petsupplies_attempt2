@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.Logger
 import nl.sogeti.reactivepetsupplies.model.api.UserProtocol
 import nl.sogeti.reactivepetsupplies.model.persistence.UserEntity
 import org.slf4j.LoggerFactory
-import reactivemongo.api.QueryOpts
+import reactivemongo.api.{ReadPreference, QueryOpts}
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import reactivemongo.core.commands.Count
@@ -20,16 +20,25 @@ trait UserDao extends MongoDao {
   import UserEntity._
   import UserProtocol._
 
-  val USER_COLLECTION = "customers"
+  val USER_COLLECTION = "users"
 
   val collection = db[BSONCollection](USER_COLLECTION)
 
   def save(userEntity: UserEntity) = {
+    logger.info("entered save entity  user ")
     val selector = BSONDocument("_id:" -> userEntity.id)
     collection.update(selector, userEntity, upsert = true)
   }
 
-  def findAll = collection.find(emptyQuery).cursor[UserEntity].collect[List]()
+  def findAllForRole(role: String) =  {
+    val query = BSONDocument("role" -> BSONDocument("$eq" -> role))
+    collection.find(query).cursor[UserEntity](ReadPreference.primary).collect[List]()
+  }
+
+  def findByUsername(userName: String) =  {
+    val query = BSONDocument("username" -> BSONDocument("$eq" -> userName))
+    collection.find(query).one[UserEntity]
+  }
 
   def findById(id: String) = {
   logger.info("Reached the findByID with {}", id)

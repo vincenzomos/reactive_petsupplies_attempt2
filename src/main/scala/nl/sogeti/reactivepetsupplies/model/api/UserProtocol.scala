@@ -11,7 +11,7 @@ object UserProtocol {
     val CUSTOMER, ADMIN = Value
   }
 
-  case class User(role: String, firstname : String, surname: String, streetAddress:String, city : String, postalCode: String)
+  case class User(role: String, username: String, firstname : String, surname: String, streetAddress:String, city : String, postalCode: String, emailAddress: String)
 
   case class Users(orders: List[User])
 
@@ -26,7 +26,7 @@ object UserProtocol {
   /* json (un)marshalling */
 
   object User extends DefaultJsonProtocol {
-    implicit val format = jsonFormat6(User.apply)
+    implicit val format = jsonFormat8(User.apply)
   }
 
   object Users extends DefaultJsonProtocol {
@@ -35,7 +35,7 @@ object UserProtocol {
 
   /* implicit conversions */
 
-  implicit def toUser(userEntity: UserEntity): User = User(userEntity.role, userEntity.firstname, userEntity.surname, userEntity.streetAddress, userEntity.city, userEntity.postalCode)
+  implicit def toUser(userEntity: UserEntity): User = User(userEntity.role, userEntity.username, userEntity.firstname, userEntity.surname, userEntity.streetAddress, userEntity.city, userEntity.postalCode, userEntity.emailAddress)
 
 
 }

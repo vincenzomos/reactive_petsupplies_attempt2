@@ -43,11 +43,15 @@ Run MongoDB on windows
 D:\Mongodb\bin\mongod.exe --dbpath d:\mongodb\data
 ```
 
-### Create a quiz
+### Create a User
 ```
 curl -v -H "Content-Type: application/json" \
      -X POST http://localhost:5000/quizzes \
      -d '{"id": "test", "question": "is scala cool?", "correctAnswer": "YES!"}'
+     
+curl -v -H "Content-Type: application/json" \
+     -X POST http://127.0.0.1:5000/user \
+     -d '{"city": "Amsterdam", "role": "customer", "username": "testpost01", "streetAddress": "Bloemgracht 10", "firstname": "Ziggy", "emailAddress": "test@reactivecountry.nl", "surname": "Stardust", "postalCode": "10023"}'
 ```
 
 ### Delete a quiz
@@ -55,12 +59,12 @@ curl -v -H "Content-Type: application/json" \
 curl -v -X DELETE http://localhost:5000/quizzes/test
 ```
 
-### Get a random question
+### Get a user by Id
 ```
-curl -v http://localhost:5000/questions
+curl http://127.0.0.1:5000/customer/53d7be30242b692a1138ac82
 ```
 
-### Get a question by id
+### Get a user by UserName
 ```
 curl -v http://localhost:5000/questions/test
 ```

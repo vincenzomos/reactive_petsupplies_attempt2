@@ -10,12 +10,15 @@ import scala.concurrent.Future
 class UserManager extends UserDao {
 
   def createUser(userEntity: UserEntity) = save(userEntity)
+    .map(_ => UserCreated(userEntity.id.stringify))
 
   def deleteUserEntity(id: String) = deleteById(id)
 
-  def findAllCustomers = findAll map extractCustomers
+  def findAllCustomers = findAllForRole("customer") map extractCustomers
 
-  def getCustomer(maybeId: Option[String] = None) = tryGetCustomer(maybeId).map(extractCustomer)
+  def getCustomer(id: String) = findById(id).map(extractCustomer)
+
+  def getUserByUsername(username: String) = findByUsername(username).map(extractCustomer)
 
  private  def extractCustomer(maybeCustomer: Option[UserEntity]) = maybeCustomer match {
     case Some(customerEntity) => toUser(customerEntity)
@@ -27,9 +30,4 @@ class UserManager extends UserDao {
     case l:List[UserEntity] => Users(l.map { o => toUser(o)})
   }
 
-  private def tryGetCustomer(maybeId: Option[String]): Future[Option[UserEntity]] = maybeId match {
-    case Some(id) => { println("found customer")
-      findById(id) }
-    case _ => findOne
-  }
 }

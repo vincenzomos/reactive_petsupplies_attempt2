@@ -26,21 +26,27 @@ trait RestApi extends HttpService with ActorLogging { actor: Actor =>
   val userManager = new UserManager
 
   def routes: Route =
-    path("user" / Segment) {
-      userId =>
-        get { requestContext =>
-          val responder = createResponder(requestContext)
-          userId match {
-            case id => userManager.getCustomer(Option(id)).pipeTo(responder)
+    pathPrefix("user") {
+      pathEnd {
+        get {
+          parameters('username ?) {
+            username => requestContext =>
+              val responder = createResponder(requestContext)
+              username match {
+                case Some(user) => userManager.getUserByUsername(user).pipeTo(responder)
+                case _ => userManager.findAllCustomers.pipeTo(responder)
+              }
           }
-        }
-    }~
+        }~
         post {
+          log.info("entered the Post for user ")
           entity(as[User]) { user => requestContext =>
             val responder = createResponder(requestContext)
             userManager.createUser(user).pipeTo(responder)
           }
-        } ~
+        }
+      }
+    } ~
       path("users") {
         get { requestContext =>
           val responder = createResponder(requestContext)

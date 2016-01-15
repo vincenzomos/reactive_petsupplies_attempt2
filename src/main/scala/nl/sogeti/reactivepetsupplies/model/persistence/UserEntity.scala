@@ -9,16 +9,18 @@ import reactivemongo.bson._
   */
 case class UserEntity(@Key(key = "_id") id: BSONObjectID = BSONObjectID.generate,
                       role: String,
+                      username: String,
                       firstname : String,
                       surname: String,
                       streetAddress: String,
                       city: String,
-                      postalCode: String)
+                      postalCode: String,
+                      emailAddress: String)
 
 
 object UserEntity {
 
-  implicit def toUserEntity(customer: User) = UserEntity(role = customer.role, firstname = customer.firstname, surname = customer.surname, streetAddress =customer.streetAddress, city = customer.city, postalCode = customer.postalCode)
+  implicit def toUserEntity(customer: User) = UserEntity(role = customer.role, username = customer.username, firstname = customer.firstname, surname = customer.surname, streetAddress =customer.streetAddress, city = customer.city, postalCode = customer.postalCode, emailAddress = customer.emailAddress)
 
 //  implicit val customerHandler : BSONHandler[BSONDocument, CustomerEntity] = Macros.handler[CustomerEntity]
 //  implicit val customerAddressHandler : BSONHandler[BSONDocument, CustomerAddress] = Macros.handler[CustomerAddress]
@@ -33,7 +35,7 @@ object UserEntity {
     def write(customerEntity: UserEntity): BSONDocument = Macros.handler[UserEntity].write(customerEntity)
   }
 
-  /*  The macros make the following old fashioned translators redundant. However it will off cause provide more control ove reach field */
+  /*  The macros make the following old fashioned translators redundant. However it will off cause provide more control over reach field */
 
   //  implicit object CustomerEntityBSONReader extends BSONDocumentReader[CustomerEntity] {
 
