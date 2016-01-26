@@ -15,9 +15,13 @@ object UserProtocol {
 
   case class Users(orders: List[User])
 
+  case class UserUpdate(role: Option[String], username: Option[String], firstname : Option[String], surname: Option[String], streetAddress:Option[String], city : Option[String], postalCode: Option[String], emailAddress: Option[String])
+
   /* messages */
 
   case class UserCreated(id: String)
+
+  case class UserUpdated(id: String)
 
   case object UserDeleted
 
@@ -33,9 +37,14 @@ object UserProtocol {
     implicit val format = jsonFormat1(Users.apply)
   }
 
+  object UserUpdate extends DefaultJsonProtocol {
+    implicit val format = jsonFormat8(UserUpdate.apply)
+  }
+
   /* implicit conversions */
 
   implicit def toUser(userEntity: UserEntity): User = User(userEntity.role, userEntity.username, userEntity.firstname, userEntity.surname, userEntity.streetAddress, userEntity.city, userEntity.postalCode, userEntity.emailAddress)
+//  implicit def toUserUpdate(userEntity: UserEntity): UserUpdate = UserUpdate(Some(userEntity.role), Some(userEntity.username), userEntity.firstname, userEntity.surname, userEntity.streetAddress, userEntity.city, userEntity.postalCode, userEntity.emailAddress)
 
 
 }

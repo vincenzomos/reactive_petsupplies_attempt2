@@ -24,7 +24,7 @@ trait UserDao extends MongoDao {
 
   val collection = db[BSONCollection](USER_COLLECTION)
 
-  def save(userEntity: UserEntity) = {
+  def  save(userEntity: UserEntity) = {
     logger.info("entered save entity  user ")
     val selector = BSONDocument("_id:" -> userEntity.id)
     collection.update(selector, userEntity, upsert = true)

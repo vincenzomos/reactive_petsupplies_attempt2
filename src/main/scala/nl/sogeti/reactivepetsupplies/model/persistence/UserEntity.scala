@@ -17,7 +17,6 @@ case class UserEntity(@Key(key = "_id") id: BSONObjectID = BSONObjectID.generate
                       postalCode: String,
                       emailAddress: String)
 
-
 object UserEntity {
 
   implicit def toUserEntity(customer: User) = UserEntity(role = customer.role, username = customer.username, firstname = customer.firstname, surname = customer.surname, streetAddress =customer.streetAddress, city = customer.city, postalCode = customer.postalCode, emailAddress = customer.emailAddress)
@@ -72,9 +71,6 @@ object UserEntity {
 //      )
 //  }
 }
-
-
-
 
 //  case class CustomerEntity(id: BSONObjectID = BSONObjectID.generate, username: String, password: String, role: String, firstname : String, surname: String, address:Option[String]) {
 //    require(!username.isEmpty, "username.empty")

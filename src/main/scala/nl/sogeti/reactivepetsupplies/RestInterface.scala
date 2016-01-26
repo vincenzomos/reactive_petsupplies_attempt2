@@ -3,41 +3,35 @@ package nl.sogeti.reactivepetsupplies
 import akka.actor._
 import akka.pattern.pipe
 import akka.util.Timeout
-import spray.http.StatusCodes
+import spray.http._
 import spray.httpx.SprayJsonSupport._
 import spray.routing._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class RestInterface extends HttpServiceActor
-  with RestApi {
+with RestApi {
 
   def receive = runRoute(routes)
 }
 
-trait RestApi extends HttpService with ActorLogging { actor: Actor =>
-  
+trait RestApi extends HttpService with ActorLogging {
+  actor: Actor =>
+
   import model.api.UserProtocol._
 
   implicit val timeout = Timeout(10 seconds)
-  
+
   val userManager = new UserManager
 
+  ///////////////////////////////
+  // To DO !!!!!!!!!!!!!!!! 25-01- 2015 Fix the routing !!!!!!!!!!!!!!!!!!!!!!!!!!!
+  /////////////////////////////////////
   def routes: Route =
     pathPrefix("user") {
       pathEnd {
-        get {
-          parameters('username ?) {
-            username => requestContext =>
-              val responder = createResponder(requestContext)
-              username match {
-                case Some(user) => userManager.getUserByUsername(user).pipeTo(responder)
-                case _ => userManager.findAllCustomers.pipeTo(responder)
-              }
-          }
-        }~
         post {
           log.info("entered the Post for user ")
           entity(as[User]) { user => requestContext =>
@@ -45,47 +39,38 @@ trait RestApi extends HttpService with ActorLogging { actor: Actor =>
             userManager.createUser(user).pipeTo(responder)
           }
         }
-      }
-    } ~
-      path("users") {
-        get { requestContext =>
-          val responder = createResponder(requestContext)
-          userManager.findAllCustomers
-          }
+      } ~
+        path(Segment) { username =>
+          get { requestContext =>
+            val responder = createResponder(requestContext)
+            userManager.getUserByUsername(username).pipeTo(responder)
+          } ~
+            put {
+              entity(as[UserUpdate]) { update => requestContext =>
+                val responder = createResponder(requestContext)
+                userManager.updateUser(username, update).pipeTo(responder)
+              }
+            } ~
+            delete { requestContext =>
+              val responder = createResponder(requestContext)
+              userManager.deleteUserEntity(username).pipeTo(responder)
+            }
         }~
-      path(Segment) { id =>
-        delete { requestContext =>
-          val responder = createResponder(requestContext)
-          userManager.deleteUserEntity(id).pipeTo(responder)
+        path("list") {
+              get { requestContext =>
+                val responder = createResponder(requestContext)
+                userManager.findAllCustomers.pipeTo(responder)
+              }
+            }
         }
-      }
 
-//    pathPrefix("questions") {
-//      pathEnd {
-//        get { requestContext =>
-//          val responder = createResponder(requestContext)
-//          questionManager.getQuestion().pipeTo(responder)
-//        }
-//      } ~
-//      path(Segment) { id =>
-//        get { requestContext =>
-//          val responder = createResponder(requestContext)
-//          questionManager.getQuestion(Some(id)).pipeTo(responder)
-//        } ~
-//        put {
-//          entity(as[Answer]) { answer => requestContext =>
-//            val responder = createResponder(requestContext)
-//            questionManager.answerQuestion(id, answer).pipeTo(responder)
-//          }
-//        }
-//      }
-//    }
-  
+
   private def createResponder(requestContext: RequestContext) =
     context.actorOf(Props(new Responder(requestContext)))
 }
 
-class Responder(requestContext:RequestContext) extends Actor with ActorLogging {
+class Responder(requestContext: RequestContext) extends Actor with ActorLogging {
+
   import model.api.UserProtocol._
 
   def receive = {
@@ -94,8 +79,12 @@ class Responder(requestContext:RequestContext) extends Actor with ActorLogging {
       requestContext.complete(StatusCodes.Created, id)
       killYourself
 
+    case UserUpdated(id) =>
+      requestContext.complete(StatusCodes.Created, id)
+      killYourself
+
     case UserDeleted =>
-      requestContext.complete(StatusCodes.OK)
+      requestContext.complete(StatusCodes.NoContent)
       killYourself
 
     case customer: User =>
@@ -113,5 +102,5 @@ class Responder(requestContext:RequestContext) extends Actor with ActorLogging {
   }
 
   private def killYourself = self ! PoisonPill
-  
+
 }
