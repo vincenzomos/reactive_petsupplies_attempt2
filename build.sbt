@@ -35,7 +35,7 @@ libraryDependencies ++= {
     "org.mindrot" % "jbcrypt" % "0.3m",
     // Test dependencies
     "com.typesafe.akka" %% "akka-testkit"    % akkaVersion  % "test",
-    "org.scalatest"     %% "scalatest"  % "2.2.4"      % "test",
+    "org.scalatest"     %% "scalatest"       % "2.2.4"      % "test",
     "io.spray"          %% "spray-testkit"   % sprayVersion % "test",
     "org.specs2"        %% "specs2"          % "2.3.13"     % "test"
   )

@@ -22,17 +22,9 @@ Run the service:
 The service runs on port 5000 by default.
 
 ## Usage
-Quiz entity:
+User entity:
 ```
 case class Quiz(id: String, question: String, correctAnswer: String)
-```
-Question entity:
-```
-case class Question(id: String, question: String)
-```
-Answer entity:
-```
-case class Answer(answer: String)
 ```
 
 ### Run the Mongo Database
@@ -50,9 +42,9 @@ curl -v -H "Content-Type: application/json" \
      -d '{"city": "Amsterdam", "role": "customer", "username": "testpost01", "streetAddress": "Bloemgracht 10", "firstname": "Ziggy", "emailAddress": "test@reactivecountry.nl", "surname": "Stardust", "postalCode": "10023"}'
 ```
 
-### Delete a quiz
+### Delete a user
 ```
-curl -v -X DELETE http://localhost:5000/quizzes/test
+curl -v -X DELETE http://localhost:5000/user/testuser01
 ```
 
 ### Get a user by UserName

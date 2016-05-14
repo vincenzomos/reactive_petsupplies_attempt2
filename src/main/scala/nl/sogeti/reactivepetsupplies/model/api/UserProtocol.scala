@@ -1,6 +1,7 @@
 package nl.sogeti.reactivepetsupplies.model.api
 
 import nl.sogeti.reactivepetsupplies.model.persistence.UserEntity
+import org.mindrot.jbcrypt.BCrypt
 
 object UserProtocol {
 
@@ -11,7 +12,11 @@ object UserProtocol {
     val CUSTOMER, ADMIN = Value
   }
 
-  case class User(role: String, username: String, firstname : String, surname: String, streetAddress:String, city : String, postalCode: String, emailAddress: String)
+  case class User(role: String, username: String, hashedPassword: Option[String] = None, firstname : String, surname: String, streetAddress:String, city : String, postalCode: String, emailAddress: String) {
+    def withPassword(password: String) = copy (hashedPassword =  Some(BCrypt.hashpw(password, BCrypt.gensalt())))
+
+    def passwordMatches(password: String): Boolean = hashedPassword.exists(hp => BCrypt.checkpw(password, hp))
+  }
 
   case class Users(orders: List[User])
 
@@ -27,10 +32,14 @@ object UserProtocol {
 
   case object UserNotFound
 
+  case object LoginSuccessfull
+
+  case class LoginFailed(msg: String )
+
   /* json (un)marshalling */
 
   object User extends DefaultJsonProtocol {
-    implicit val format = jsonFormat8(User.apply)
+    implicit val format = jsonFormat9(User.apply)
   }
 
   object Users extends DefaultJsonProtocol {
@@ -43,7 +52,7 @@ object UserProtocol {
 
   /* implicit conversions */
 
-  implicit def toUser(userEntity: UserEntity): User = User(userEntity.role, userEntity.username, userEntity.firstname, userEntity.surname, userEntity.streetAddress, userEntity.city, userEntity.postalCode, userEntity.emailAddress)
+  implicit def toUser(userEntity: UserEntity): User = User(userEntity.role, userEntity.username, Some(userEntity.hashedPassword), userEntity.firstname, userEntity.surname, userEntity.streetAddress, userEntity.city, userEntity.postalCode, userEntity.emailAddress)
 //  implicit def toUserUpdate(userEntity: UserEntity): UserUpdate = UserUpdate(Some(userEntity.role), Some(userEntity.username), userEntity.firstname, userEntity.surname, userEntity.streetAddress, userEntity.city, userEntity.postalCode, userEntity.emailAddress)
 
 

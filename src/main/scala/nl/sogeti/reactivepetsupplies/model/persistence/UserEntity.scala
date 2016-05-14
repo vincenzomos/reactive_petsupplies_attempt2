@@ -10,6 +10,7 @@ import reactivemongo.bson._
 case class UserEntity(@Key(key = "_id") id: BSONObjectID = BSONObjectID.generate,
                       role: String,
                       username: String,
+                      hashedPassword: String,
                       firstname : String,
                       surname: String,
                       streetAddress: String,
@@ -19,18 +20,15 @@ case class UserEntity(@Key(key = "_id") id: BSONObjectID = BSONObjectID.generate
 
 object UserEntity {
 
-  implicit def toUserEntity(customer: User) = UserEntity(role = customer.role, username = customer.username, firstname = customer.firstname, surname = customer.surname, streetAddress =customer.streetAddress, city = customer.city, postalCode = customer.postalCode, emailAddress = customer.emailAddress)
+  implicit def toUserEntity(customer: User) = UserEntity(role = customer.role, username = customer.username, hashedPassword = customer.hashedPassword.get, firstname = customer.firstname, surname = customer.surname, streetAddress =customer.streetAddress, city = customer.city, postalCode = customer.postalCode, emailAddress = customer.emailAddress)
 
 //  implicit val customerHandler : BSONHandler[BSONDocument, CustomerEntity] = Macros.handler[CustomerEntity]
-//  implicit val customerAddressHandler : BSONHandler[BSONDocument, CustomerAddress] = Macros.handler[CustomerAddress]
 
-  implicit object CustomerEntityBSONReader extends BSONDocumentReader[UserEntity]   {
-
+  implicit object UserEntityBSONReader extends BSONDocumentReader[UserEntity]   {
     def read(doc: BSONDocument): UserEntity = Macros.handler[UserEntity].read(doc)
-
-
   }
-  implicit object CustomerEntityBSONWriter extends BSONDocumentWriter[UserEntity] {
+
+  implicit object UserEntityBSONWriter extends BSONDocumentWriter[UserEntity] {
     def write(customerEntity: UserEntity): BSONDocument = Macros.handler[UserEntity].write(customerEntity)
   }
 

@@ -3,11 +3,15 @@ package nl.sogeti.reactivepetsupplies
 import akka.actor._
 import akka.pattern.pipe
 import akka.util.Timeout
+import nl.sogeti.reactivepetsupplies.model.api.UserProtocol.LoginSuccessfull
+import nl.sogeti.reactivepetsupplies.security.{AuthInfo, Authenticator}
 import spray.http._
 import spray.httpx.SprayJsonSupport._
 import spray.routing._
+import spray.routing.authentication.UserPass
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -17,7 +21,7 @@ with RestApi {
   def receive = runRoute(routes)
 }
 
-trait RestApi extends HttpService with ActorLogging {
+trait RestApi extends HttpService with ActorLogging with Authenticator {
   actor: Actor =>
 
   import model.api.UserProtocol._
@@ -39,6 +43,13 @@ trait RestApi extends HttpService with ActorLogging {
             userManager.createUser(user).pipeTo(responder)
           }
         }
+        get {
+          authenticate(basicUserAuthenticator) { authInfo =>  Route { requestContext =>
+            val responder = createResponder(requestContext)
+            userManager.findAllCustomers.pipeTo(responder)
+          }
+          }
+        }
       } ~
         path(Segment) { username =>
           get { requestContext =>
@@ -55,14 +66,8 @@ trait RestApi extends HttpService with ActorLogging {
               val responder = createResponder(requestContext)
               userManager.deleteUserEntity(username).pipeTo(responder)
             }
-        }~
-        path("list") {
-              get { requestContext =>
-                val responder = createResponder(requestContext)
-                userManager.findAllCustomers.pipeTo(responder)
-              }
-            }
         }
+    }
 
 
   private def createResponder(requestContext: RequestContext) =
@@ -75,7 +80,7 @@ class Responder(requestContext: RequestContext) extends Actor with ActorLogging 
 
   def receive = {
 
-    case UserCreated(id) =>
+      case UserCreated(id) =>
       requestContext.complete(StatusCodes.Created, id)
       killYourself
 
@@ -94,6 +99,11 @@ class Responder(requestContext: RequestContext) extends Actor with ActorLogging 
     case UserNotFound =>
       requestContext.complete(StatusCodes.NotFound)
       killYourself
+
+    case LoginSuccessfull =>
+      requestContext.complete(StatusCodes.OK)
+      killYourself
+
 
     case unexpected =>
       println("Unexpected result !!!!!! :" + unexpected)

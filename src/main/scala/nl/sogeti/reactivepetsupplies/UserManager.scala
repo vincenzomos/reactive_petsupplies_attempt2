@@ -3,6 +3,7 @@ package nl.sogeti.reactivepetsupplies
 import nl.sogeti.reactivepetsupplies.dao.UserDao
 import nl.sogeti.reactivepetsupplies.model.api.UserProtocol._
 import nl.sogeti.reactivepetsupplies.model.persistence.UserEntity
+import spray.routing.authentication.UserPass
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -17,12 +18,16 @@ class UserManager extends UserDao {
 
   def deleteUserEntity(id: String) = deleteById(id)
 
-  def findAllCustomers = findAllForRole("customer") map extractCustomers
+  def findAllCustomers = findAllForRole("customer") map extractUsers
 
-  def getUser(id: String) = findById(id).map(extractCustomer)
+  def getUser(id: String) = findById(id).map(extractUser)
 
-  def getUserByUsername(username: String) = findByUsername(username).map(extractCustomer)
+  def getUserByUsername(username: String) = findByUsername(username).map(extractUser)
 
+  def loginUser(userPass: UserPass) = {
+    val user = findByUsername(userPass.user).map(extractUser)
+
+  }
   /**
     * Updates a User
     * @param username
@@ -34,13 +39,14 @@ class UserManager extends UserDao {
     def updateEntity(user: UserEntity): User = {
       val role = update.role.getOrElse(user.role)
       val username = update.role.getOrElse(user.username)
+      val hashedPassword = update.role.getOrElse(user.hashedPassword)
       val firstname = update.role.getOrElse(user.firstname)
       val surname = update.role.getOrElse(user.surname)
       val streetAddress = update.role.getOrElse(user.streetAddress)
       val city = update.role.getOrElse(user.city)
       val postalCode = update.role.getOrElse(user.postalCode)
       val emailAddress = update.role.getOrElse(user.emailAddress)
-      User(role, username, firstname, surname, streetAddress, city, postalCode, emailAddress)
+      User(role, username, Some(hashedPassword), firstname, surname, streetAddress, city, postalCode, emailAddress)
     }
 
     findByUsername(username).flatMap { maybeUserEntity =>
@@ -57,12 +63,12 @@ class UserManager extends UserDao {
     }
   }
 
- private  def extractCustomer(maybeCustomer: Option[UserEntity]) = maybeCustomer match {
+ private  def extractUser(maybeCustomer: Option[UserEntity]) = maybeCustomer match {
     case Some(customerEntity) => toUser(customerEntity)
     case _ => UserNotFound
   }
 
-  private def extractCustomers(customers: List[UserEntity]) = customers match {
+  private def extractUsers(customers: List[UserEntity]) = customers match {
     case Nil => UserNotFound
     case l:List[UserEntity] => Users(l.map { o => toUser(o)})
   }
